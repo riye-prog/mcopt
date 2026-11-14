@@ -1,0 +1,34 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "mcopt.legacy.mixin",
+  "compatibilityLevel": "JAVA_8",
+  "client": [
+    "RenderSystemMixin",
+    "WindowMixin",
+    "ChunkMixin",
+    "VertexBufferMixin",
+    "LevelRendererMixin",
+    "MinecraftMixin",
+    "BenchmarkCameraMixin",
+    "DirectStateMixin",
+    "DirectWindowMixin",
+    "DirectRenderSystemMixin",
+    "DirectRenderTargetMixin",
+    "DirectBufferUploaderMixin",
+    "DirectVertexFormatMixin",
+    "DirectGLXMixin",
+    "DirectTextureUtilMixin",
+    "DirectChunkCompilationMixin",
+    "DirectChunkTaskAccessor",
+    "DirectChunkTaskMixin",
+    "VulkanChunkUploadMixin",
+    "VulkanFrustumMixin",
+    "VulkanBakedQuadMixin",
+    "DirectProgramMixin",
+    "DirectChunkInfoMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

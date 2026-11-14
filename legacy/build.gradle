@@ -1,0 +1,100 @@
+plugins {
+ id 'net.fabricmc.fabric-loom-remap' version "${loom_version}"
+}
+version = '0.3.2-direct-vulkan+1.16.1'
+base { archivesName = 'meshnet-vulkan' }
+repositories { mavenCentral() }
+configurations.configureEach {
+ resolutionStrategy.eachDependency { if (requested.group == 'org.lwjgl') useVersion '3.3.3' }
+}
+dependencies {
+ minecraft 'com.mojang:minecraft:1.16.1'
+ mappings loom.officialMojangMappings()
+ modImplementation "net.fabricmc:fabric-loader:${loader_version}"
+ testImplementation 'junit:junit:4.13.2'
+ if (System.getProperty('os.name').startsWith('Mac') && System.getProperty('os.arch') in ['aarch64', 'arm64']) {
+  for (String module : ['lwjgl', 'lwjgl-glfw', 'lwjgl-opengl', 'lwjgl-openal', 'lwjgl-stb', 'lwjgl-jemalloc', 'lwjgl-tinyfd']) runtimeOnly "org.lwjgl:${module}:3.3.3:natives-macos-arm64"
+ }
+}
+sourceSets.main.java {
+ srcDir '../metal/src/main/java'
+ include 'mcopt/legacy/**', 'mcopt/metal/FrameDeadline.java'
+}
+tasks.withType(JavaCompile).configureEach { options.release = 8 }
+def nativeOutput = layout.buildDirectory.file('generated/natives/natives/libmeshnet116.dylib')
+def moltenVk = file(providers.gradleProperty('moltenVkPrefix').getOrElse('/opt/homebrew/opt/molten-vk'))
+def vulkanHeaders = file(providers.gradleProperty('vulkanHeaders').getOrElse('/opt/homebrew/include'))
+def shaderHeader = layout.buildDirectory.file('generated/vulkan/vulkan_shaders.h')
+def minecraftClient = new File(gradle.gradleUserHomeDir, 'caches/fabric-loom/1.16.1/minecraft-client.jar')
+tasks.register('compileVulkanShaders', Exec) {
+ inputs.files fileTree('src/main/vulkan'), 'tools/compile_vulkan.py'
+ outputs.file shaderHeader
+ commandLine 'python3', file('tools/compile_vulkan.py'), file('src/main/vulkan'), shaderHeader.get().asFile
+}
+tasks.register('compileNative', Exec) {
+ dependsOn 'compileVulkanShaders'
+ inputs.files 'src/main/native/legacy.m', 'src/main/native/directvulkan.mm', 'src/main/native/terrainmesh.h', shaderHeader, new File(moltenVk, 'lib/libMoltenVK.a')
+ outputs.file nativeOutput
+ doFirst { nativeOutput.get().asFile.parentFile.mkdirs() }
+ def jdk = System.getProperty('java.home')
+ commandLine 'clang++', '-std=c++17', '-O3', '-Wall', '-Wextra', '-Werror', '-Wno-missing-field-initializers',
+  '-fobjc-arc', '-arch', 'arm64', '-mmacosx-version-min=13.0', '-dynamiclib',
+  '-I', "${jdk}/include", '-I', "${jdk}/include/darwin", '-I', vulkanHeaders,
+  '-I', shaderHeader.get().asFile.parentFile,
+  '-framework', 'Foundation', '-framework', 'AppKit', '-framework', 'QuartzCore', '-framework', 'IOSurface',
+  '-framework', 'Metal', '-framework', 'CoreGraphics', '-framework', 'IOKit',
+  '-o', nativeOutput.get().asFile,
+  '-x', 'objective-c++', file('src/main/native/legacy.m'), file('src/main/native/directvulkan.mm'),
+  '-x', 'none', new File(moltenVk, 'lib/libMoltenVK.a')
+}
+tasks.register('compileEffects', Exec) {
+ inputs.files minecraftClient, 'tools/compile_effects.py'
+ outputs.dir layout.buildDirectory.dir('generated/effects')
+ doFirst { commandLine 'python3', file('tools/compile_effects.py'), minecraftClient, 'unused',
+  layout.buildDirectory.dir('generated/effects/mcopt/legacy/effects').get().asFile, '--vulkan' }
+}
+processResources {
+ dependsOn 'compileNative', 'compileEffects'
+ from(layout.buildDirectory.dir('generated/natives'))
+ from(layout.buildDirectory.dir('generated/effects'))
+ inputs.property 'version', version
+ filesMatching('fabric.mod.json') { expand 'version': version }
+ exclude 'mcopt/legacy/direct.metal'
+}
+jar {
+ from(rootProject.file('LICENSE'))
+ from(rootProject.file('NOTICE'))
+ from(new File(moltenVk, 'LICENSE')) { rename { 'MOLTENVK-LICENSE' } }
+}
+loom.runs {
+ directcheck {
+  client()
+  runDir 'run-direct-vulkan'
+  vmArg '-Dmeshnet.nativeVulkan=true'
+  vmArg '-Dmeshnet.smoke=true'
+  vmArg '-Dmeshnet.smokeSamples=120'
+  vmArg '-XstartOnFirstThread'
+ }
+ directbenchmark {
+  client()
+  runDir 'run-direct-vulkan'
+  vmArg '-Dmeshnet.nativeVulkan=true'
+  vmArg '-Dmeshnet.directBenchmark=true'
+  vmArg '-Dmeshnet.benchmark=true'
+  vmArg '-Dmeshnet.benchmarkBackend=direct_vulkan'
+  vmArg '-XstartOnFirstThread'
+ }
+ directglbenchmark {
+  client()
+  runDir 'run-direct-opengl'
+  vmArg '-Dmeshnet.nativeVulkan=false'
+  vmArg '-Dmeshnet.directBenchmark=true'
+  vmArg '-Dmeshnet.benchmark=true'
+  vmArg '-Dmeshnet.benchmarkBackend=opengl'
+  vmArg '-XstartOnFirstThread'
+ }
+}
+['runDirectcheck','runDirectbenchmark','runDirectglbenchmark'].each { name -> tasks.named(name) {
+ if (project.hasProperty('legacyJava')) { executable = project.property('legacyJava'); useArgFile = false }
+ jvmArgs '-Xms1G', '-Xmx2G'
+} }

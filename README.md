@@ -6,6 +6,8 @@
 A Minecraft performance mod for Apple Silicon Macs. Since 0.3.0-alpha.1 it draws the world with its own Metal renderer.
 **Very much alpha:** expect bugs, and back up your worlds.
 
+for minecraft 1.16.1 on apple silicon, see [meshnet vulkan](legacy/readme.md) for setup and build instructions.
+
 ## Requirements
 
 - An Apple Silicon Mac on macOS 26 or later

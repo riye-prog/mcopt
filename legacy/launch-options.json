@@ -1,0 +1,9 @@
+{
+  "default_backend": "direct Vulkan on macOS",
+  "opengl_jvm_argument": "-Dmeshnet.nativeVulkan=false",
+  "direct_vulkan_jvm_argument": "-Dmeshnet.nativeVulkan=true",
+  "config_path": "config/meshnet/direct-vulkan.properties",
+  "config_disabled_entry": "enabled=false",
+  "respect_vsync_setting": "-Dmeshnet.smooth=false",
+  "precise_limiter": "-Dmeshnet.preciseLimiter=true"
+}

@@ -1,0 +1,31 @@
+{
+  "schemaVersion": 1,
+  "id": "meshnet-vulkan",
+  "version": "${version}",
+  "name": "Meshnet Vulkan",
+  "description": "Direct Vulkan renderer and precise frame pacing for Minecraft 1.16.1 on macOS.",
+  "environment": "client",
+  "license": [
+    "Apache-2.0",
+    "MIT"
+  ],
+  "entrypoints": {
+    "preLaunch": [
+      "mcopt.legacy.LegacyVulkanBackend"
+    ],
+    "client": [
+      "mcopt.legacy.LegacyClient"
+    ]
+  },
+  "mixins": [
+    "meshnet-legacy.mixins.json"
+  ],
+  "breaks": {
+    "mcopt-metal": "*"
+  },
+  "depends": {
+    "minecraft": "1.16.1",
+    "fabricloader": ">=0.16.0",
+    "java": ">=8"
+  }
+}

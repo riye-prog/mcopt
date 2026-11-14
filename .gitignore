@@ -2,6 +2,11 @@ refs/
 build/
 .gradle/
 run/
+run-smoke/
+run-benchmark/
+run-opengl/
+run-native/
+run-backend-benchmark/
 out/
 *.class
 __pycache__/
@@ -9,3 +14,9 @@ mcopt-pack-cache/
 dist/
 .replay-stamp
 .replay-lineage
+
+/legacy/tools/shader-compiler/target/
+
+/legacy/run-direct-metal/
+/legacy/run-direct-opengl/
+/legacy/run-direct-vulkan/

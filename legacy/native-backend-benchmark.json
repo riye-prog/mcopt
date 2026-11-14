@@ -1,0 +1,1253 @@
+{
+  "minecraft": "1.16.1",
+  "hardware": "Apple M3",
+  "os": "macOS 27.0",
+  "scope": "Separate real Minecraft processes, SodiumMac 3.5.1, SpeedrunAPI 2.2, LazyDFU 0.1.2, same saved world and fixed camera, 960x540 physical pixels, 10 chunks, vsync off, 20 second initial warmup and four 4 second sample phases per backend.",
+  "limitations": [
+    "One stationary scene; not a general FPS guarantee.",
+    "Frame time tails vary; Java 21 worst native frame was slower than OpenGL.",
+    "Incomplete scene, mismatched resolution, and moving camera runs were rejected and excluded.",
+    "This report uses isolated Minecraft instances, not the full ranked mod stack."
+  ],
+  "native_dependency": {
+    "repository": "https://github.com/metalsharp/WineMetalGL.git",
+    "revision": "d6f4c9239e4849d89c27f01b54ba7f7799b3abd7",
+    "version": "3.7.0",
+    "license": "LGPL-3.0-only",
+    "glfw_version": "3.3.3",
+    "glfw_headers_revision": "7b6aead9fb88b3623e3b3725ebb42670cbe4c579",
+    "headers": {
+      "glfw3.h": "aa370985f6b493bbe0358a36ab49f5780a6397c0209c6d98a62143dea595b73c",
+      "glfw3native.h": "40035881fdc02a9ab265c2086338f749a0411e1c15b68fada678fa34e8bd8958"
+    },
+    "minimum_macos": 15,
+    "architecture": "arm64",
+    "license_notices": {
+      "GLFW-zlib.txt": {
+        "url": "https://raw.githubusercontent.com/glfw/glfw/7b6aead9fb88b3623e3b3725ebb42670cbe4c579/LICENSE.md",
+        "sha256": "149704059b5d0bf551637e50042dd4de9c2cae921021f6636298911e3a5f9462"
+      },
+      "LWJGL-BSD-3-Clause.txt": {
+        "url": "https://raw.githubusercontent.com/LWJGL/lwjgl3/3.3.3/LICENSE.md",
+        "sha256": "4c2f770897d0cfda4d9a65bb4d6d6983dccfd57d4c7eb74ea5ded0762cbc0e75"
+      }
+    },
+    "patches": [
+      {
+        "path": "native-patches/indirect-compat-quads.patch",
+        "files": {
+          "src/core/api/draw.mm": {
+            "before": "17d700b481b005f74663b4536b89b8d35e7ce21dd38f710af1019a9e811de766",
+            "after": "fb718f9416f2e562959356515996d0f485347d8063612ecdf081767d955860c1"
+          },
+          "src/core/draw.h": {
+            "before": "d67ac291e5d39d51c8595132f54cf0ecc6717c7c8d93c869125de63d03959dc7",
+            "after": "91bdaa0b9099aa744acd011d506bbf201f57b47a58ec41e1ddb277b9c4087403"
+          },
+          "src/core/draw.mm": {
+            "before": "9f16ab3a71c74e1e257f9fff62aa6e652720414cc26712be956dde45edb9feed",
+            "after": "cf83972c566cef0ac449211d4d2ee56238b7fe2ca8f4d5e1171d6804cf1ead99"
+          },
+          "tests/gpu/compat_tests.cpp": {
+            "before": "0a39919c3ee994d779e3026f4a4b3590ebac963a17a6134eca98f36496c3e773",
+            "after": "b2d2a18af605614f845e7f9c08ce105faffcb54166a4f86c17791868692fe098"
+          }
+        }
+      }
+    ]
+  },
+  "runs": [
+    {
+      "java_major": 21,
+      "summary": {
+        "opengl": {
+          "samples": 6840,
+          "weighted_fps": 427.2726742469618,
+          "phase_p99_ms": [
+            4.388916,
+            5.673625,
+            5.445792,
+            4.267917
+          ],
+          "worst_frame_ms": 16.546666
+        },
+        "native_metal": {
+          "samples": 8053,
+          "weighted_fps": 502.8082566343247,
+          "phase_p99_ms": [
+            3.362458,
+            7.192166,
+            3.946667,
+            3.556292
+          ],
+          "worst_frame_ms": 26.872167
+        },
+        "relative_fps_gain": 0.17678542752702153
+      },
+      "reports": {
+        "opengl": {
+          "minecraft": "1.16.1",
+          "java": "21.0.9",
+          "width": 960,
+          "height": 540,
+          "render_distance": 10,
+          "vsync": false,
+          "framerate_limit": 260,
+          "comparison": "separate processes using the same saved world and fixed camera; same display and video settings",
+          "native_backend": false,
+          "gl_renderer": "Apple M3",
+          "gl_version": "2.1 Metal - 91.7",
+          "sodium_backend": "unmodified",
+          "mods": [
+            "speedrunapi@2.2+1.16-1.16.1",
+            "java@21",
+            "mcopt-metal@0.3.0-alpha.2-meshnet.5+1.16.1",
+            "fabricloader@0.19.5",
+            "mixinextras@0.5.5",
+            "minecraft@1.16.1",
+            "fabric-loom-native-support@1.0.1",
+            "sodiummac@3.5.1+1.16.1",
+            "mixinsquared@0.1.1",
+            "lazydfu@0.1.2",
+            "fabric-key-binding-api-v1@1.0.0+1.16.1"
+          ],
+          "scene_error_mean": 0,
+          "scene_valid": true,
+          "phases": [
+            {
+              "renderer": "opengl",
+              "camera": [
+                -132.5,
+                80,
+                184.5,
+                0,
+                20
+              ],
+              "width": 960,
+              "height": 540,
+              "samples": 1735,
+              "metal_frames": 0,
+              "frame_ms": {
+                "mean": 2.306283669164265,
+                "p50": 2.017833,
+                "p95": 3.685917,
+                "p99": 4.388916,
+                "max": 16.546666
+              },
+              "terrain_cpu_ms": {
+                "mean": 0,
+                "p50": 0,
+                "p95": 0,
+                "p99": 0,
+                "max": 0
+              },
+              "prepare_ms": {
+                "mean": 0,
+                "p50": 0,
+                "p95": 0,
+                "p99": 0,
+                "max": 0
+              },
+              "encode_ms": {
+                "mean": 0,
+                "p50": 0,
+                "p95": 0,
+                "p99": 0,
+                "max": 0
+              },
+              "wait_ms": {
+                "mean": 0,
+                "p50": 0,
+                "p95": 0,
+                "p99": 0,
+                "max": 0
+              },
+              "composite_ms": {
+                "mean": 0,
+                "p50": 0,
+                "p95": 0,
+                "p99": 0,
+                "max": 0
+              },
+              "terrain_gpu_ms": {
+                "mean": 0,
+                "p50": 0,
+                "p95": 0,
+                "p99": 0,
+                "max": 0
+              }
+            },
+            {
+              "renderer": "opengl",
+              "camera": [
+                -132.5,
+                80,
+                184.5,
+                0,
+                20
+              ],
+              "width": 960,
+              "height": 540,
+              "samples": 1621,
+              "metal_frames": 0,
+              "frame_ms": {
+                "mean": 2.468408312769895,
+                "p50": 2.093208,
+                "p95": 3.904667,
+                "p99": 5.673625,
+                "max": 9.479416
+              },
+              "terrain_cpu_ms": {
+                "mean": 0,
+                "p50": 0,
+                "p95": 0,
+                "p99": 0,
+                "max": 0
+              },
+              "prepare_ms": {
+                "mean": 0,
+                "p50": 0,
+                "p95": 0,
+                "p99": 0,
+                "max": 0
+              },
+              "encode_ms": {
+                "mean": 0,
+                "p50": 0,
+                "p95": 0,
+                "p99": 0,
+                "max": 0
+              },
+              "wait_ms": {
+                "mean": 0,
+                "p50": 0,
+                "p95": 0,
+                "p99": 0,
+                "max": 0
+              },
+              "composite_ms": {
+                "mean": 0,
+                "p50": 0,
+                "p95": 0,
+                "p99": 0,
+                "max": 0
+              },
+              "terrain_gpu_ms": {
+                "mean": 0,
+                "p50": 0,
+                "p95": 0,
+                "p99": 0,
+                "max": 0
+              }
+            },
+            {
+              "renderer": "opengl",
+              "camera": [
+                -132.5,
+                80,
+                184.5,
+                0,
+                20
+              ],
+              "width": 960,
+              "height": 540,
+              "samples": 1711,
+              "metal_frames": 0,
+              "frame_ms": {
+                "mean": 2.33968841320865,
+                "p50": 2.018792,
+                "p95": 3.852375,
+                "p99": 5.445792,
+                "max": 15.0195
+              },
+              "terrain_cpu_ms": {
+                "mean": 0,
+                "p50": 0,
+                "p95": 0,
+                "p99": 0,
+                "max": 0
+              },
+              "prepare_ms": {
+                "mean": 0,
+                "p50": 0,
+                "p95": 0,
+                "p99": 0,
+                "max": 0
+              },
+              "encode_ms": {
+                "mean": 0,
+                "p50": 0,
+                "p95": 0,
+                "p99": 0,
+                "max": 0
+              },
+              "wait_ms": {
+                "mean": 0,
+                "p50": 0,
+                "p95": 0,
+                "p99": 0,
+                "max": 0
+              },
+              "composite_ms": {
+                "mean": 0,
+                "p50": 0,
+                "p95": 0,
+                "p99": 0,
+                "max": 0
+              },
+              "terrain_gpu_ms": {
+                "mean": 0,
+                "p50": 0,
+                "p95": 0,
+                "p99": 0,
+                "max": 0
+              }
+            },
+            {
+              "renderer": "opengl",
+              "camera": [
+                -132.5,
+                80,
+                184.5,
+                0,
+                20
+              ],
+              "width": 960,
+              "height": 540,
+              "samples": 1773,
+              "metal_frames": 0,
+              "frame_ms": {
+                "mean": 2.2575373429216015,
+                "p50": 1.936166,
+                "p95": 3.645708,
+                "p99": 4.267917,
+                "max": 10.758
+              },
+              "terrain_cpu_ms": {
+                "mean": 0,
+                "p50": 0,
+                "p95": 0,
+                "p99": 0,
+                "max": 0
+              },
+              "prepare_ms": {
+                "mean": 0,
+                "p50": 0,
+                "p95": 0,
+                "p99": 0,
+                "max": 0
+              },
+              "encode_ms": {
+                "mean": 0,
+                "p50": 0,
+                "p95": 0,
+                "p99": 0,
+                "max": 0
+              },
+              "wait_ms": {
+                "mean": 0,
+                "p50": 0,
+                "p95": 0,
+                "p99": 0,
+                "max": 0
+              },
+              "composite_ms": {
+                "mean": 0,
+                "p50": 0,
+                "p95": 0,
+                "p99": 0,
+                "max": 0
+              },
+              "terrain_gpu_ms": {
+                "mean": 0,
+                "p50": 0,
+                "p95": 0,
+                "p99": 0,
+                "max": 0
+              }
+            }
+          ]
+        },
+        "native_metal": {
+          "minecraft": "1.16.1",
+          "java": "21.0.9",
+          "width": 960,
+          "height": 540,
+          "render_distance": 10,
+          "vsync": false,
+          "framerate_limit": 260,
+          "comparison": "separate processes using the same saved world and fixed camera; same display and video settings",
+          "native_backend": true,
+          "gl_renderer": "M3 (WineMetalGL)",
+          "gl_version": "4.6.0 WineMetalGL Compatibility Profile",
+          "sodium_backend": "GL43",
+          "mods": [
+            "sodiummac@3.5.1+1.16.1",
+            "java@21",
+            "mixinextras@0.5.5",
+            "mixinsquared@0.1.1",
+            "fabricloader@0.19.5",
+            "fabric-loom-native-support@1.0.1",
+            "mcopt-metal@0.3.0-alpha.2-meshnet.5+1.16.1",
+            "minecraft@1.16.1",
+            "lazydfu@0.1.2",
+            "fabric-key-binding-api-v1@1.0.0+1.16.1",
+            "speedrunapi@2.2+1.16-1.16.1"
+          ],
+          "scene_error_mean": 0.43644737844840725,
+          "scene_valid": true,
+          "phases": [
+            {
+              "renderer": "native_metal",
+              "camera": [
+                -132.5,
+                80,
+                184.5,
+                0,
+                20
+              ],
+              "width": 960,
+              "height": 540,
+              "samples": 2039,
+              "metal_frames": 0,
+              "frame_ms": {
+                "mean": 1.963655447768514,
+                "p50": 1.834625,
+                "p95": 2.628083,
+                "p99": 3.362458,
+                "max": 13.763083
+              },
+              "terrain_cpu_ms": {
+                "mean": 0,
+                "p50": 0,
+                "p95": 0,
+                "p99": 0,
+                "max": 0
+              },
+              "prepare_ms": {
+                "mean": 0,
+                "p50": 0,
+                "p95": 0,
+                "p99": 0,
+                "max": 0
+              },
+              "encode_ms": {
+                "mean": 0,
+                "p50": 0,
+                "p95": 0,
+                "p99": 0,
+                "max": 0
+              },
+              "wait_ms": {
+                "mean": 0,
+                "p50": 0,
+                "p95": 0,
+                "p99": 0,
+                "max": 0
+              },
+              "composite_ms": {
+                "mean": 0,
+                "p50": 0,
+                "p95": 0,
+                "p99": 0,
+                "max": 0
+              },
+              "terrain_gpu_ms": {
+                "mean": 0,
+                "p50": 0,
+                "p95": 0,
+                "p99": 0,
+                "max": 0
+              }
+            },
+            {
+              "renderer": "native_metal",
+              "camera": [
+                -132.5,
+                80,
+                184.5,
+                0,
+                20
+              ],
+              "width": 960,
+              "height": 540,
+              "samples": 1761,
+              "metal_frames": 0,
+              "frame_ms": {
+                "mean": 2.2755855105053944,
+                "p50": 1.963542,
+                "p95": 3.92575,
+                "p99": 7.192166,
+                "max": 14.342916
+              },
+              "terrain_cpu_ms": {
+                "mean": 0,
+                "p50": 0,
+                "p95": 0,
+                "p99": 0,
+                "max": 0
+              },
+              "prepare_ms": {
+                "mean": 0,
+                "p50": 0,
+                "p95": 0,
+                "p99": 0,
+                "max": 0
+              },
+              "encode_ms": {
+                "mean": 0,
+                "p50": 0,
+                "p95": 0,
+                "p99": 0,
+                "max": 0
+              },
+              "wait_ms": {
+                "mean": 0,
+                "p50": 0,
+                "p95": 0,
+                "p99": 0,
+                "max": 0
+              },
+              "composite_ms": {
+                "mean": 0,
+                "p50": 0,
+                "p95": 0,
+                "p99": 0,
+                "max": 0
+              },
+              "terrain_gpu_ms": {
+                "mean": 0,
+                "p50": 0,
+                "p95": 0,
+                "p99": 0,
+                "max": 0
+              }
+            },
+            {
+              "renderer": "native_metal",
+              "camera": [
+                -132.5,
+                80,
+                184.5,
+                0,
+                20
+              ],
+              "width": 960,
+              "height": 540,
+              "samples": 2110,
+              "metal_frames": 0,
+              "frame_ms": {
+                "mean": 1.8971731436018957,
+                "p50": 1.751291,
+                "p95": 2.625958,
+                "p99": 3.946667,
+                "max": 17.535459
+              },
+              "terrain_cpu_ms": {
+                "mean": 0,
+                "p50": 0,
+                "p95": 0,
+                "p99": 0,
+                "max": 0
+              },
+              "prepare_ms": {
+                "mean": 0,
+                "p50": 0,
+                "p95": 0,
+                "p99": 0,
+                "max": 0
+              },
+              "encode_ms": {
+                "mean": 0,
+                "p50": 0,
+                "p95": 0,
+                "p99": 0,
+                "max": 0
+              },
+              "wait_ms": {
+                "mean": 0,
+                "p50": 0,
+                "p95": 0,
+                "p99": 0,
+                "max": 0
+              },
+              "composite_ms": {
+                "mean": 0,
+                "p50": 0,
+                "p95": 0,
+                "p99": 0,
+                "max": 0
+              },
+              "terrain_gpu_ms": {
+                "mean": 0,
+                "p50": 0,
+                "p95": 0,
+                "p99": 0,
+                "max": 0
+              }
+            },
+            {
+              "renderer": "native_metal",
+              "camera": [
+                -132.5,
+                80,
+                184.5,
+                0,
+                20
+              ],
+              "width": 960,
+              "height": 540,
+              "samples": 2143,
+              "metal_frames": 0,
+              "frame_ms": {
+                "mean": 1.8673872104526366,
+                "p50": 1.72725,
+                "p95": 2.524416,
+                "p99": 3.556292,
+                "max": 26.872167
+              },
+              "terrain_cpu_ms": {
+                "mean": 0,
+                "p50": 0,
+                "p95": 0,
+                "p99": 0,
+                "max": 0
+              },
+              "prepare_ms": {
+                "mean": 0,
+                "p50": 0,
+                "p95": 0,
+                "p99": 0,
+                "max": 0
+              },
+              "encode_ms": {
+                "mean": 0,
+                "p50": 0,
+                "p95": 0,
+                "p99": 0,
+                "max": 0
+              },
+              "wait_ms": {
+                "mean": 0,
+                "p50": 0,
+                "p95": 0,
+                "p99": 0,
+                "max": 0
+              },
+              "composite_ms": {
+                "mean": 0,
+                "p50": 0,
+                "p95": 0,
+                "p99": 0,
+                "max": 0
+              },
+              "terrain_gpu_ms": {
+                "mean": 0,
+                "p50": 0,
+                "p95": 0,
+                "p99": 0,
+                "max": 0
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "java_major": 25,
+      "summary": {
+        "opengl": {
+          "samples": 5866,
+          "weighted_fps": 366.34360804019303,
+          "phase_p99_ms": [
+            5.948167,
+            5.422708,
+            5.341875,
+            5.587625
+          ],
+          "worst_frame_ms": 23.240291
+        },
+        "native_metal": {
+          "samples": 7036,
+          "weighted_fps": 439.6035925512214,
+          "phase_p99_ms": [
+            4.520458,
+            3.861833,
+            5.711125,
+            3.805541
+          ],
+          "worst_frame_ms": 12.061625
+        },
+        "relative_fps_gain": 0.1999761505405897
+      },
+      "reports": {
+        "opengl": {
+          "minecraft": "1.16.1",
+          "java": "25.0.4",
+          "width": 960,
+          "height": 540,
+          "render_distance": 10,
+          "vsync": false,
+          "framerate_limit": 260,
+          "comparison": "separate processes using the same saved world and fixed camera; same display and video settings",
+          "native_backend": false,
+          "gl_renderer": "Apple M3",
+          "gl_version": "2.1 Metal - 91.7",
+          "sodium_backend": "unmodified",
+          "mods": [
+            "mcopt-metal@0.3.0-alpha.2-meshnet.5+1.16.1",
+            "fabricloader@0.19.5",
+            "sodiummac@3.5.1+1.16.1",
+            "speedrunapi@2.2+1.16-1.16.1",
+            "mixinsquared@0.1.1",
+            "fabric-loom-native-support@1.0.1",
+            "lazydfu@0.1.2",
+            "minecraft@1.16.1",
+            "fabric-key-binding-api-v1@1.0.0+1.16.1",
+            "java@25",
+            "mixinextras@0.5.5"
+          ],
+          "scene_error_mean": 0,
+          "scene_valid": true,
+          "phases": [
+            {
+              "renderer": "opengl",
+              "camera": [
+                -132.5,
+                80,
+                184.5,
+                0,
+                20
+              ],
+              "width": 960,
+              "height": 540,
+              "samples": 1364,
+              "metal_frames": 0,
+              "frame_ms": {
+                "mean": 2.934409335043988,
+                "p50": 2.598625,
+                "p95": 4.873791,
+                "p99": 5.948167,
+                "max": 23.240291
+              },
+              "terrain_cpu_ms": {
+                "mean": 0,
+                "p50": 0,
+                "p95": 0,
+                "p99": 0,
+                "max": 0
+              },
+              "prepare_ms": {
+                "mean": 0,
+                "p50": 0,
+                "p95": 0,
+                "p99": 0,
+                "max": 0
+              },
+              "encode_ms": {
+                "mean": 0,
+                "p50": 0,
+                "p95": 0,
+                "p99": 0,
+                "max": 0
+              },
+              "wait_ms": {
+                "mean": 0,
+                "p50": 0,
+                "p95": 0,
+                "p99": 0,
+                "max": 0
+              },
+              "composite_ms": {
+                "mean": 0,
+                "p50": 0,
+                "p95": 0,
+                "p99": 0,
+                "max": 0
+              },
+              "terrain_gpu_ms": {
+                "mean": 0,
+                "p50": 0,
+                "p95": 0,
+                "p99": 0,
+                "max": 0
+              }
+            },
+            {
+              "renderer": "opengl",
+              "camera": [
+                -132.5,
+                80,
+                184.5,
+                0,
+                20
+              ],
+              "width": 960,
+              "height": 540,
+              "samples": 1463,
+              "metal_frames": 0,
+              "frame_ms": {
+                "mean": 2.7360622583732055,
+                "p50": 2.357375,
+                "p95": 4.573834,
+                "p99": 5.422708,
+                "max": 9.442833
+              },
+              "terrain_cpu_ms": {
+                "mean": 0,
+                "p50": 0,
+                "p95": 0,
+                "p99": 0,
+                "max": 0
+              },
+              "prepare_ms": {
+                "mean": 0,
+                "p50": 0,
+                "p95": 0,
+                "p99": 0,
+                "max": 0
+              },
+              "encode_ms": {
+                "mean": 0,
+                "p50": 0,
+                "p95": 0,
+                "p99": 0,
+                "max": 0
+              },
+              "wait_ms": {
+                "mean": 0,
+                "p50": 0,
+                "p95": 0,
+                "p99": 0,
+                "max": 0
+              },
+              "composite_ms": {
+                "mean": 0,
+                "p50": 0,
+                "p95": 0,
+                "p99": 0,
+                "max": 0
+              },
+              "terrain_gpu_ms": {
+                "mean": 0,
+                "p50": 0,
+                "p95": 0,
+                "p99": 0,
+                "max": 0
+              }
+            },
+            {
+              "renderer": "opengl",
+              "camera": [
+                -132.5,
+                80,
+                184.5,
+                0,
+                20
+              ],
+              "width": 960,
+              "height": 540,
+              "samples": 1534,
+              "metal_frames": 0,
+              "frame_ms": {
+                "mean": 2.6089323663624513,
+                "p50": 2.200416,
+                "p95": 4.313,
+                "p99": 5.341875,
+                "max": 11.777416
+              },
+              "terrain_cpu_ms": {
+                "mean": 0,
+                "p50": 0,
+                "p95": 0,
+                "p99": 0,
+                "max": 0
+              },
+              "prepare_ms": {
+                "mean": 0,
+                "p50": 0,
+                "p95": 0,
+                "p99": 0,
+                "max": 0
+              },
+              "encode_ms": {
+                "mean": 0,
+                "p50": 0,
+                "p95": 0,
+                "p99": 0,
+                "max": 0
+              },
+              "wait_ms": {
+                "mean": 0,
+                "p50": 0,
+                "p95": 0,
+                "p99": 0,
+                "max": 0
+              },
+              "composite_ms": {
+                "mean": 0,
+                "p50": 0,
+                "p95": 0,
+                "p99": 0,
+                "max": 0
+              },
+              "terrain_gpu_ms": {
+                "mean": 0,
+                "p50": 0,
+                "p95": 0,
+                "p99": 0,
+                "max": 0
+              }
+            },
+            {
+              "renderer": "opengl",
+              "camera": [
+                -132.5,
+                80,
+                184.5,
+                0,
+                20
+              ],
+              "width": 960,
+              "height": 540,
+              "samples": 1505,
+              "metal_frames": 0,
+              "frame_ms": {
+                "mean": 2.660992746179402,
+                "p50": 2.242875,
+                "p95": 4.466167,
+                "p99": 5.587625,
+                "max": 8.816542
+              },
+              "terrain_cpu_ms": {
+                "mean": 0,
+                "p50": 0,
+                "p95": 0,
+                "p99": 0,
+                "max": 0
+              },
+              "prepare_ms": {
+                "mean": 0,
+                "p50": 0,
+                "p95": 0,
+                "p99": 0,
+                "max": 0
+              },
+              "encode_ms": {
+                "mean": 0,
+                "p50": 0,
+                "p95": 0,
+                "p99": 0,
+                "max": 0
+              },
+              "wait_ms": {
+                "mean": 0,
+                "p50": 0,
+                "p95": 0,
+                "p99": 0,
+                "max": 0
+              },
+              "composite_ms": {
+                "mean": 0,
+                "p50": 0,
+                "p95": 0,
+                "p99": 0,
+                "max": 0
+              },
+              "terrain_gpu_ms": {
+                "mean": 0,
+                "p50": 0,
+                "p95": 0,
+                "p99": 0,
+                "max": 0
+              }
+            }
+          ]
+        },
+        "native_metal": {
+          "minecraft": "1.16.1",
+          "java": "25.0.4",
+          "width": 960,
+          "height": 540,
+          "render_distance": 10,
+          "vsync": false,
+          "framerate_limit": 260,
+          "comparison": "separate processes using the same saved world and fixed camera; same display and video settings",
+          "native_backend": true,
+          "gl_renderer": "M3 (WineMetalGL)",
+          "gl_version": "4.6.0 WineMetalGL Compatibility Profile",
+          "sodium_backend": "GL43",
+          "mods": [
+            "sodiummac@3.5.1+1.16.1",
+            "java@25",
+            "minecraft@1.16.1",
+            "mixinextras@0.5.5",
+            "fabric-loom-native-support@1.0.1",
+            "fabric-key-binding-api-v1@1.0.0+1.16.1",
+            "mcopt-metal@0.3.0-alpha.2-meshnet.5+1.16.1",
+            "mixinsquared@0.1.1",
+            "speedrunapi@2.2+1.16-1.16.1",
+            "fabricloader@0.19.5",
+            "lazydfu@0.1.2"
+          ],
+          "scene_error_mean": 0.5415317151856932,
+          "scene_valid": true,
+          "phases": [
+            {
+              "renderer": "native_metal",
+              "camera": [
+                -132.5,
+                80,
+                184.5,
+                0,
+                20
+              ],
+              "width": 960,
+              "height": 540,
+              "samples": 1803,
+              "metal_frames": 0,
+              "frame_ms": {
+                "mean": 2.218865201331115,
+                "p50": 2.061084,
+                "p95": 3.260166,
+                "p99": 4.520458,
+                "max": 7.6935
+              },
+              "terrain_cpu_ms": {
+                "mean": 0,
+                "p50": 0,
+                "p95": 0,
+                "p99": 0,
+                "max": 0
+              },
+              "prepare_ms": {
+                "mean": 0,
+                "p50": 0,
+                "p95": 0,
+                "p99": 0,
+                "max": 0
+              },
+              "encode_ms": {
+                "mean": 0,
+                "p50": 0,
+                "p95": 0,
+                "p99": 0,
+                "max": 0
+              },
+              "wait_ms": {
+                "mean": 0,
+                "p50": 0,
+                "p95": 0,
+                "p99": 0,
+                "max": 0
+              },
+              "composite_ms": {
+                "mean": 0,
+                "p50": 0,
+                "p95": 0,
+                "p99": 0,
+                "max": 0
+              },
+              "terrain_gpu_ms": {
+                "mean": 0,
+                "p50": 0,
+                "p95": 0,
+                "p99": 0,
+                "max": 0
+              }
+            },
+            {
+              "renderer": "native_metal",
+              "camera": [
+                -132.5,
+                80,
+                184.5,
+                0,
+                20
+              ],
+              "width": 960,
+              "height": 540,
+              "samples": 1807,
+              "metal_frames": 0,
+              "frame_ms": {
+                "mean": 2.2143895500830104,
+                "p50": 2.082416,
+                "p95": 3.101583,
+                "p99": 3.861833,
+                "max": 12.061625
+              },
+              "terrain_cpu_ms": {
+                "mean": 0,
+                "p50": 0,
+                "p95": 0,
+                "p99": 0,
+                "max": 0
+              },
+              "prepare_ms": {
+                "mean": 0,
+                "p50": 0,
+                "p95": 0,
+                "p99": 0,
+                "max": 0
+              },
+              "encode_ms": {
+                "mean": 0,
+                "p50": 0,
+                "p95": 0,
+                "p99": 0,
+                "max": 0
+              },
+              "wait_ms": {
+                "mean": 0,
+                "p50": 0,
+                "p95": 0,
+                "p99": 0,
+                "max": 0
+              },
+              "composite_ms": {
+                "mean": 0,
+                "p50": 0,
+                "p95": 0,
+                "p99": 0,
+                "max": 0
+              },
+              "terrain_gpu_ms": {
+                "mean": 0,
+                "p50": 0,
+                "p95": 0,
+                "p99": 0,
+                "max": 0
+              }
+            },
+            {
+              "renderer": "native_metal",
+              "camera": [
+                -132.5,
+                80,
+                184.5,
+                0,
+                20
+              ],
+              "width": 960,
+              "height": 540,
+              "samples": 1643,
+              "metal_frames": 0,
+              "frame_ms": {
+                "mean": 2.4354059391357277,
+                "p50": 2.167292,
+                "p95": 3.974667,
+                "p99": 5.711125,
+                "max": 11.624667
+              },
+              "terrain_cpu_ms": {
+                "mean": 0,
+                "p50": 0,
+                "p95": 0,
+                "p99": 0,
+                "max": 0
+              },
+              "prepare_ms": {
+                "mean": 0,
+                "p50": 0,
+                "p95": 0,
+                "p99": 0,
+                "max": 0
+              },
+              "encode_ms": {
+                "mean": 0,
+                "p50": 0,
+                "p95": 0,
+                "p99": 0,
+                "max": 0
+              },
+              "wait_ms": {
+                "mean": 0,
+                "p50": 0,
+                "p95": 0,
+                "p99": 0,
+                "max": 0
+              },
+              "composite_ms": {
+                "mean": 0,
+                "p50": 0,
+                "p95": 0,
+                "p99": 0,
+                "max": 0
+              },
+              "terrain_gpu_ms": {
+                "mean": 0,
+                "p50": 0,
+                "p95": 0,
+                "p99": 0,
+                "max": 0
+              }
+            },
+            {
+              "renderer": "native_metal",
+              "camera": [
+                -132.5,
+                80,
+                184.5,
+                0,
+                20
+              ],
+              "width": 960,
+              "height": 540,
+              "samples": 1783,
+              "metal_frames": 0,
+              "frame_ms": {
+                "mean": 2.2444985277621985,
+                "p50": 2.12475,
+                "p95": 3.075375,
+                "p99": 3.805541,
+                "max": 10.006584
+              },
+              "terrain_cpu_ms": {
+                "mean": 0,
+                "p50": 0,
+                "p95": 0,
+                "p99": 0,
+                "max": 0
+              },
+              "prepare_ms": {
+                "mean": 0,
+                "p50": 0,
+                "p95": 0,
+                "p99": 0,
+                "max": 0
+              },
+              "encode_ms": {
+                "mean": 0,
+                "p50": 0,
+                "p95": 0,
+                "p99": 0,
+                "max": 0
+              },
+              "wait_ms": {
+                "mean": 0,
+                "p50": 0,
+                "p95": 0,
+                "p99": 0,
+                "max": 0
+              },
+              "composite_ms": {
+                "mean": 0,
+                "p50": 0,
+                "p95": 0,
+                "p99": 0,
+                "max": 0
+              },
+              "terrain_gpu_ms": {
+                "mean": 0,
+                "p50": 0,
+                "p95": 0,
+                "p99": 0,
+                "max": 0
+              }
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

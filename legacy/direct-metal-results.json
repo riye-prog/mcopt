@@ -1,0 +1,107 @@
+{
+  "minecraft": "1.16.1",
+  "version": "0.4.0-direct-metal.1+1.16.1",
+  "hardware": "Apple M3",
+  "runtime_java": "25.0.1 arm64",
+  "build_java": "25.0.3",
+  "os": "27.0",
+  "resolution": [
+    1920,
+    1080
+  ],
+  "vsync": false,
+  "camera": "-132.5,80,184.5 yaw=0 pitch=20",
+  "method": "One stationary normal-world scene, same saved world and fixed camera. Separate processes. 35-second warmup at 24 chunks, 12-second warmup at 16 chunks, 6-second samples. Entities remain alive. VSync off. Stock textures, clouds off. Metal renders every measured frame; bounded presentation can drop superseded screen submissions.",
+  "baseline": "SodiumMac 3.5.1, SpeedrunAPI 2.2, LazyDFU 0.1.2, Minecraft OpenGL; no WineMetalGL.",
+  "metal_mods": "Fabric loader, Meshnet direct Metal, Loom native support. No Sodium.",
+  "comparison": [
+    {
+      "render_distance": 24,
+      "opengl_sodiummac": {
+        "render_distance": 24,
+        "samples": 592,
+        "fps": 97.77076397181983,
+        "p50_ms": 8.950458,
+        "p95_ms": 16.945667,
+        "p99_ms": 25.049,
+        "max_ms": 51.003709,
+        "chunks": "C: 1850/38416",
+        "terrain_draws": 0
+      },
+      "direct_metal": {
+        "render_distance": 24,
+        "samples": 1270,
+        "fps": 211.54019207433024,
+        "p50_ms": 4.1555,
+        "p95_ms": 6.693208,
+        "p99_ms": 7.352834,
+        "max_ms": 27.884875,
+        "chunks": "C: 1850/38416 (s) D: 24, pC: 000, pU: 00, aB: 08",
+        "terrain_draws": 19629,
+        "last_gpu_ms": 6.725750004989095,
+        "last_fence_wait_ms": 1.2942500034114346,
+        "arena_mb": 128.0,
+        "terrain_records": 12911.0
+      },
+      "fps_ratio": 2.1636344391796083,
+      "fps_increase_percent": 116.36344391796084,
+      "p99_reduction_percent": 70.64619745299214
+    },
+    {
+      "render_distance": 16,
+      "opengl_sodiummac": {
+        "render_distance": 16,
+        "samples": 1140,
+        "fps": 189.77509146630035,
+        "p50_ms": 4.546917,
+        "p95_ms": 8.740167,
+        "p99_ms": 13.735708,
+        "max_ms": 19.889584,
+        "chunks": "C: 956/17424",
+        "terrain_draws": 0
+      },
+      "direct_metal": {
+        "render_distance": 16,
+        "samples": 2123,
+        "fps": 353.4547464816487,
+        "p50_ms": 2.509375,
+        "p95_ms": 4.638875,
+        "p99_ms": 5.025541,
+        "max_ms": 23.815583,
+        "chunks": "C: 946/17424 (s) D: 16, pC: 000, pU: 00, aB: 08",
+        "terrain_draws": 34263,
+        "last_gpu_ms": 2.47875000059139,
+        "last_fence_wait_ms": 1.2101666652597487,
+        "arena_mb": 128.0,
+        "terrain_records": 6944.0
+      },
+      "fps_ratio": 1.862492826380295,
+      "fps_increase_percent": 86.24928263802948,
+      "p99_reduction_percent": 63.412581280848435
+    }
+  ],
+  "validation": [
+    "Clean Java/native build and existing frame-pacing tests passed.",
+    "An earlier packed indirect build passed Metal API and shader validation; final face-group/shading/translucency changes were validated in the normal-world benchmark without debug layers.",
+    "Final normal-world scene and glowing-entity effect rendered and exited normally.",
+    "24-chunk Metal and OpenGL captures visually inspected; geometry, foliage and water present.",
+    "No OpenGL context is created; constructor verifies GLFW current context is zero.",
+    "Final package build and existing automated checks passed after readback-format handling was completed."
+  ],
+  "limitations": [
+    "One short scene per distance is not a universal FPS guarantee.",
+    "No 14-, 20-, or 32-chunk measurements; no walking, dimension-tour, or full modpack suite.",
+    "The 16-chunk maximum frame was 23.82 ms versus 19.89 ms in the OpenGL reference, despite the improved p99.",
+    "Normal vanilla rendering and stock shader programs are targeted. Modified GLSL shader packs and direct OpenGL mods require integration.",
+    "Original Prism instances and mods were not changed."
+  ],
+  "architecture": [
+    "GLFW_NO_API window and native CAMetalLayer.",
+    "Persistent GPU terrain arena, 16-byte common vertices and full-precision fallback.",
+    "GPU frustum/portal visibility and conservative face-group culling.",
+    "Indexed indirect opaque/cutout layers; separately batched sorted translucent layers.",
+    "Specialized fragment pipelines and terrain vertex lightmap sampling.",
+    "Batched animation uploads, triple-buffered staging and bounded asynchronous presentation.",
+    "Native Metal render targets, textures, entity/UI draws, and 28 build-time stock shader-effect pairs."
+  ]
+}
