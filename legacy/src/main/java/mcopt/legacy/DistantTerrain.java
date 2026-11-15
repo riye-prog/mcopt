@@ -35,12 +35,16 @@ public final class DistantTerrain {
     private static final int MAX_NEW_COLUMNS = 40;
     private final Long2ObjectOpenHashMap<Column> columns = new Long2ObjectOpenHashMap<>();
     private ByteBuffer visible = ByteBuffer.allocateDirect(4096).order(ByteOrder.nativeOrder());
+    private ByteBuffer visibleWater = ByteBuffer.allocateDirect(4096).order(ByteOrder.nativeOrder());
     private static final int FOLIAGE_INTERVAL = 4;
     private static final int MAX_QUADS = (MAX_POINTS - 1) * (MAX_POINTS - 1) + 3 * 16;
     private final ByteBuffer mesh = ByteBuffer.allocateDirect(MAX_QUADS * 4 * STRIDE)
         .order(ByteOrder.nativeOrder());
+    private final ByteBuffer waterMesh = ByteBuffer.allocateDirect((MAX_POINTS - 1) * (MAX_POINTS - 1) * 4 * STRIDE)
+        .order(ByteOrder.nativeOrder());
     private final BlockPos.MutableBlockPos position = new BlockPos.MutableBlockPos();
     private final float[] ground = new float[MAX_POINTS * MAX_POINTS];
+    private final float[] water = new float[ground.length];
     private final int[] surfaceTint = new int[ground.length];
     private final boolean[] sampledTint = new boolean[ground.length];
     private final Map<BlockState, Material> materials = new IdentityHashMap<>();
@@ -66,8 +70,9 @@ public final class DistantTerrain {
     }
 
     public void clear() {
-        for (Column column : columns.values()) DirectNative.deleteBuffer(column.id);
+        for (Column column : columns.values()) column.release();
         columns.clear();
+        visibleWater.clear();
         materials.clear();
         waterMaterial = null;
         trunkMaterial = null;
@@ -81,9 +86,13 @@ public final class DistantTerrain {
         int cameraX = (int)Math.floor(x / 16.0);
         int cameraZ = (int)Math.floor(z / 16.0);
         int bytes = columns.size() * Integer.BYTES;
-        if (visible.capacity() < bytes)
-            visible = ByteBuffer.allocateDirect(Integer.highestOneBit(bytes - 1) * 2).order(ByteOrder.nativeOrder());
+        if (visible.capacity() < bytes) {
+            int capacity = Integer.highestOneBit(bytes - 1) * 2;
+            visible = ByteBuffer.allocateDirect(capacity).order(ByteOrder.nativeOrder());
+            visibleWater = ByteBuffer.allocateDirect(capacity).order(ByteOrder.nativeOrder());
+        }
         visible.clear();
+        visibleWater.clear();
         int visibleCount = 0;
         Iterator<Long2ObjectMap.Entry<Column>> entries = columns.long2ObjectEntrySet().fastIterator();
         while (entries.hasNext()) {
@@ -92,9 +101,15 @@ public final class DistantTerrain {
             int distance = Math.max(Math.abs(column.x - cameraX), Math.abs(column.z - cameraZ));
             if (distance > far || DirectTerrain.detailedColumns().contains(entry.getLongKey())) continue;
             visible.putInt(column.id);
+            if (column.waterId != 0) visibleWater.putInt(column.waterId);
             visibleCount++;
         }
         if (visibleCount != 0) DirectNative.drawDistantTerrain(state, visible, visibleCount, x, y, z);
+    }
+
+    public void drawWater(ByteBuffer state, double x, double y, double z) {
+        int count = visibleWater.position() / Integer.BYTES;
+        if (count != 0) DirectNative.drawDistantTerrain(state, visibleWater, count, x, y, z);
     }
 
     public void update(double x, double z, int near, int far) {
@@ -118,7 +133,7 @@ public final class DistantTerrain {
                 int distance = Math.max(Math.abs(column.x - cameraX), Math.abs(column.z - cameraZ));
                 if (distance > far + 3 || distance < near - 4 ||
                     level.getChunkSource().getChunk(column.x, column.z, ChunkStatus.FULL, false) != column.chunk) {
-                    DirectNative.deleteBuffer(column.id);
+                    column.release();
                     existing.remove();
                 }
             }
@@ -158,7 +173,7 @@ public final class DistantTerrain {
         LevelChunk southeast = level.getChunkSource().getChunk(x + 1, z + 1, ChunkStatus.FULL, false);
         if (east == null || south == null || southeast == null) return 0;
         if (column != null && column.chunk != chunk) {
-            DirectNative.deleteBuffer(column.id);
+            column.release();
             column = null;
         }
         if (column == null) {
@@ -187,7 +202,8 @@ public final class DistantTerrain {
                 net.minecraft.world.level.material.FluidState fluid = block.getFluidState();
                 boolean wet = fluid.is(FluidTags.WATER);
                 if (!wet) land++;
-                ground[index] = wet ? y + fluid.getOwnHeight() : groundHeight(sample, y, block);
+                water[index] = wet ? y + fluid.getOwnHeight() : Float.NaN;
+                ground[index] = wet ? oceanFloor(sample, y) + 1 : groundHeight(sample, y, block);
             }
         }
         return land;
@@ -202,6 +218,7 @@ public final class DistantTerrain {
             for (int z = 0; z < coarseAxis; z++) {
                 for (int x = 0; x < coarseAxis; x++) {
                     ground[z * coarseAxis + x] = ground[2 * z * fineAxis + 2 * x];
+                    water[z * coarseAxis + x] = water[2 * z * fineAxis + 2 * x];
                 }
             }
             step = FAR_STEP;
@@ -223,6 +240,7 @@ public final class DistantTerrain {
             }
         }
         mesh.clear();
+        waterMesh.clear();
         Arrays.fill(sampledTint, false);
         float minY = 256, maxY = 0;
         for (int row = 0; row < axis - 1; row++) {
@@ -233,38 +251,43 @@ public final class DistantTerrain {
                 BlockState block = column.chunk.getBlockState(position);
                 net.minecraft.world.level.material.FluidState fluid = block.getFluidState();
                 boolean wet = fluid.is(FluidTags.WATER);
-                if (!wet && canopy(block)) {
+                float surface = y + fluid.getOwnHeight();
+                if (wet) {
+                    position.setY(oceanFloor(column.chunk, y));
+                    block = column.chunk.getBlockState(position);
+                } else if (canopy(block)) {
                     y = groundHeight(column.chunk, y, block) - 1;
                     position.setY(y);
                     block = column.chunk.getBlockState(position);
                 }
-                Material material = wet ? waterMaterial : materials.computeIfAbsent(block, this::material);
+                Material material = materials.computeIfAbsent(block, this::material);
                 int color = material.tint < 0 ? -1 :
                     minecraft.getBlockColors().getColor(block, level, position, material.tint);
                 int rgba = (color >>> 16 & 255) | (color & 0x00ff00) | ((color & 255) << 16) | 0xff000000;
                 int first = row * axis + col;
-                float shade = wet ? 1.0f : terrainShade(first, axis, step);
+                float shade = terrainShade(first, axis, step);
                 for (int corner = 0; corner < 4; corner++) {
                     boolean right = corner >= 2;
                     boolean bottom = corner == 1 || corner == 2;
                     int index = first + (bottom ? axis : 0) + (right ? 1 : 0);
+                    float x = (index % axis) * step, z = (index / axis) * step;
+                    int repeat = 0x10000 | (right ? step : 0) | ((bottom ? step : 0) << 8);
+                    float height = ground[index];
+                    minY = Math.min(minY, height);
+                    maxY = Math.max(maxY, height);
+                    vertex(x, height, z, shaded(rgba, shade), material, repeat | 0x20000);
                     if (wet) {
                         if (!sampledTint[index]) {
-                            position.set(worldX + (index % axis) * step, y, worldZ + (index / axis) * step);
+                            position.set(worldX + (int)x, y, worldZ + (int)z);
                             int tint = BiomeColors.getAverageWaterColor(level, position);
                             surfaceTint[index] = (tint >>> 16 & 255) | (tint & 0x00ff00) |
                                 ((tint & 255) << 16) | 0xff000000;
                             sampledTint[index] = true;
                         }
-                        rgba = surfaceTint[index];
+                        float heightAtCorner = Float.isNaN(water[index]) ? surface : water[index];
+                        maxY = Math.max(maxY, heightAtCorner);
+                        putVertex(waterMesh, x, heightAtCorner, z, surfaceTint[index], waterMaterial, repeat);
                     }
-                    float height = ground[index];
-                    minY = Math.min(minY, height);
-                    maxY = Math.max(maxY, height);
-                    int repeat = 0x30000 | (right ? step : 0) | ((bottom ? step : 0) << 8);
-                    if (wet) repeat |= 0x40000;
-                    vertex((index % axis) * step, height, (index / axis) * step,
-                        shaded(rgba, shade), material, repeat);
                 }
             }
         }
@@ -293,15 +316,36 @@ public final class DistantTerrain {
         }
         mesh.flip();
         DirectNative.uploadDistantTerrain(column.id, worldX, worldZ, minY, maxY, mesh.slice());
+        waterMesh.flip();
+        if (waterMesh.hasRemaining()) {
+            if (column.waterId == 0) column.waterId = DirectVulkan.id();
+            DirectNative.uploadDistantTerrain(column.waterId, worldX, worldZ, minY, maxY, waterMesh.slice());
+        } else {
+            column.releaseWater();
+        }
         column.dirty = false;
     }
 
     private void stitch(int point, int stride) {
         ground[point] = (ground[point - stride] + ground[point + stride]) * 0.5f;
+        if (!Float.isNaN(water[point]) && !Float.isNaN(water[point - stride]) && !Float.isNaN(water[point + stride])) {
+            water[point] = (water[point - stride] + water[point + stride]) * 0.5f;
+        }
     }
 
     private static boolean canopy(BlockState block) {
         return block.is(BlockTags.LEAVES) || block.is(BlockTags.LOGS);
+    }
+
+    private int oceanFloor(LevelChunk chunk, int y) {
+        int first = y;
+        while (y > 0) {
+            position.setY(y);
+            if (chunk.getBlockState(position).getMaterial().blocksMotion()) break;
+            y--;
+        }
+        position.setY(first);
+        return y;
     }
 
     private int groundHeight(LevelChunk chunk, int y, BlockState block) {
@@ -320,7 +364,11 @@ public final class DistantTerrain {
     }
 
     private void vertex(float x, float y, float z, int color, Material material, int repeat) {
-        mesh.putFloat(x).putFloat(y).putFloat(z).putInt(color).putInt(material.minimum).putInt(material.maximum)
+        putVertex(mesh, x, y, z, color, material, repeat);
+    }
+
+    private static void putVertex(ByteBuffer target, float x, float y, float z, int color, Material material, int repeat) {
+        target.putFloat(x).putFloat(y).putFloat(z).putInt(color).putInt(material.minimum).putInt(material.maximum)
             .putInt(0x00f000f0).putInt(repeat);
     }
 
@@ -382,6 +430,7 @@ public final class DistantTerrain {
         final int z;
         final int id;
         final LevelChunk chunk;
+        int waterId;
         boolean fine;
         boolean dirty;
         Column(int x, int z, int id, LevelChunk chunk) {
@@ -389,6 +438,17 @@ public final class DistantTerrain {
             this.z = z;
             this.id = id;
             this.chunk = chunk;
+        }
+
+        void release() {
+            DirectNative.deleteBuffer(id);
+            releaseWater();
+        }
+
+        void releaseWater() {
+            if (waterId == 0) return;
+            DirectNative.deleteBuffer(waterId);
+            waterId = 0;
         }
     }
 }

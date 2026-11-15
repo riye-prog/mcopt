@@ -1,7 +1,7 @@
 plugins {
  id 'net.fabricmc.fabric-loom-remap' version "${loom_version}"
 }
-version = '0.3.2-direct-vulkan+1.16.1'
+version = '0.3.3-direct-vulkan+1.16.1'
 base { archivesName = 'meshnet-vulkan' }
 repositories { mavenCentral() }
 configurations.configureEach {

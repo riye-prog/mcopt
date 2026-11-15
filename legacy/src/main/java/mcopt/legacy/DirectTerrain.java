@@ -23,9 +23,7 @@ public final class DirectTerrain {
     private static final int DETAIL_DISTANCE = Math.max(4, Integer.getInteger("meshnet.vulkan.detailDistance", 8));
     private static final DistantTerrain DISTANT = new DistantTerrain();
     private static final LongOpenHashSet DETAILED_COLUMNS = new LongOpenHashSet();
-    private static final RenderType[] LAYERS = {
-        RenderType.solid(), RenderType.cutoutMipped(), RenderType.cutout(), RenderType.translucent()
-    };
+    private static final List<RenderType> LAYERS = RenderType.chunkBufferLayers();
     public static int detailDistance(int distance) {
         Minecraft minecraft = Minecraft.getInstance();
         if (!FAST || minecraft == null || minecraft.level == null ||
@@ -34,10 +32,7 @@ public final class DirectTerrain {
     }
     private static ByteBuffer visibility = ByteBuffer.allocateDirect(4096).order(ByteOrder.nativeOrder());
     public static int layer(RenderType layer) {
-        return layer == RenderType.solid()   ? 0
-        : layer == RenderType.cutoutMipped() ? 1
-        : layer == RenderType.cutout()       ? 2
-                                             : 3;
+        return LAYERS.indexOf(layer);
     }
     public static void track(ChunkRenderDispatcher.RenderChunk chunk) {
         if (!DirectVulkan.active())
@@ -81,9 +76,13 @@ public final class DirectTerrain {
             int near = detailDistance(distance);
             int layerIndex = layer(layer);
             ByteBuffer state = DirectVulkan.state(DefaultVertexFormat.BLOCK);
-            if (layerIndex == 0 && near < distance) {
-                DISTANT.update(x, z, near, distance);
-                DISTANT.draw(state, x, y, z, distance);
+            if (near < distance) {
+                if (layer == RenderType.solid()) {
+                    DISTANT.update(x, z, near, distance);
+                    DISTANT.draw(state, x, y, z, distance);
+                } else if (layer == RenderType.translucent()) {
+                    DISTANT.drawWater(state, x, y, z);
+                }
             }
             DirectNative.terrainDraw(layerIndex, state, x, y, z, distance);
             frames++;
@@ -94,7 +93,7 @@ public final class DirectTerrain {
     public static void visible(List<?> chunks) {
         if (!DirectVulkan.active())
             return;
-        int bytes = chunks.size() * LAYERS.length * Integer.BYTES;
+        int bytes = chunks.size() * LAYERS.size() * Integer.BYTES;
         if (visibility.capacity() < bytes)
             visibility = ByteBuffer.allocateDirect(Integer.highestOneBit(bytes - 1) * 2).order(ByteOrder.nativeOrder());
         visibility.clear();

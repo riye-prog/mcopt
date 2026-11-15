@@ -52,10 +52,6 @@ void main() {
         float detail = (surfaceFlags & 2u) != 0u ? 0.62 : 1.0;
         vec4 texel = textureGrad(texture0, uv, dx * detail, dy * detail);
         if ((surfaceFlags & 8u) != 0u && texel.a < 0.5) discard;
-        if ((surfaceFlags & 4u) != 0u) {
-            result.rgb *= mix(vec3(0.78), texel.rgb * 0.9, 0.35);
-            texel = vec4(1);
-        }
         if ((surfaceFlags & 2u) != 0u) texel.a = 1.0;
         result *= (state.flags.w & 2u) != 0u ? vec4(1, 1, 1, texel.a) : texel;
     }

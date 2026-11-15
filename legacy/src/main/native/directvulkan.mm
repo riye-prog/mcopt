@@ -251,7 +251,7 @@ public:
     uint64_t terrainCommands = 0;
     std::unordered_map<int, Effect> effects;
     std::vector<VkShaderModule> effectModules;
-    std::array<std::vector<int>, 4> visibility;
+    std::array<std::vector<int>, 5> visibility;
     std::shared_ptr<Image> screen;
     std::shared_ptr<Image> screenDepth;
     int presentTarget = 0;
@@ -1313,7 +1313,7 @@ void Renderer::terrain(int layer, const DrawState &state, double x, double y, do
         return std::array<float, 3>{static_cast<float>(mesh.origin[0] - x), static_cast<float>(mesh.origin[1] - y),
                                     static_cast<float>(mesh.origin[2] - z)};
     };
-    if (layer == 3) {
+    if (layer >= 3) {
         if (visibility[layer].empty()) return;
         auto bindings = bindDraw(state, 7, destination, true);
         auto &frame = *recording;
